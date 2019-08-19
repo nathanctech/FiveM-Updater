@@ -4,7 +4,7 @@
 ###
 ### V: 1.0
 ###
-### Updates/Support: <github link>
+### Updates/Support: https://github.com/nathanctech/FiveM-Updater
 ###
 ###
 ### Licensed under MIT license. See LICENSE. 
