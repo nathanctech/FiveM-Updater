@@ -12,7 +12,7 @@
 #################################################
 
 param (
-    [switch]$prompt = $true  # prompt for update
+    [switch]$Silent = $false  # prompt for update
 )
 
 
@@ -25,7 +25,7 @@ $artifactFolder = "C:\MyCoolServer\"
 # FIRST TIME USE ONLY - ENTER SERVER VERSION IF YOU HAVE A SERVER INSTALLED IN THE ABOVE PATH.
 # Type "version" into the console to see, then enter the 4 digit version.
 
-$initialVersion = 1400
+$initialVersion = 1
 
 # Delete Exclusion Filter
 # Add folders or files to exclude from deletion. Wildcards accepted.
@@ -75,12 +75,15 @@ $latestUrl = $latestRelease.Uri
 
 if ($latestArtifact -ne $latest)
 {
-	if ($prompt -eq $true) {
+	if ($Silent -eq $false) {
             $choice = Read-Host -Prompt "The latest artifact is $latestArtifact. Do you want to install? (y/n)."
 	        if($choice -eq "y") { # They want to update
 		        $doDownload = $true
         }
 	}
+    else { 
+        $doDownload = $true
+    }
 }
 
 If ($doDownload -eq 1){
