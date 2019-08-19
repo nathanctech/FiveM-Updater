@@ -98,6 +98,7 @@ If ($doDownload -eq 1){
     }
 	else {
         echo "Removing old files"
+        cd $artifactFolder
         Get-ChildItem -Exclude $filter -Force | Remove-Item -Force -Recurse
     }
 
