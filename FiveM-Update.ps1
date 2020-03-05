@@ -2,17 +2,28 @@
 ### FiveM Automatic Updater
 ###
 ###
-### V: 1.0
+### V: 1.1
 ###
 ### Updates/Support: https://github.com/nathanctech/FiveM-Updater
 ###
 ###
 ### Licensed under MIT license. See LICENSE. 
 ### Do not distribute without license and header.
+###
+###
+### Changelog
+###
+###
+### V1.1
+### - Ensure new artifact can be downloaded before removing old files
+### - Exempt .zip files from purge
+### - Added -KeepDownload flag, specifying will keep the newly downloaded artifact zip.
+### - Exempt .crt and .key from purge so custom-signed certs are never deleted.
 #################################################
 
 param (
-    [switch]$Silent = $false  # prompt for update
+    [switch]$Silent = $false,  # prompt for update
+    [switch]$KeepDownload = $false # keeps downloaded zip
 )
 
 
@@ -20,7 +31,7 @@ param (
 
 # ABSOLUTE path to where FXServer.exe is located (or you want it to be created)
 
-$artifactFolder = "C:\MyCoolServer\"
+$artifactFolder = "C:\MyCoolServer"
 
 # FIRST TIME USE ONLY - ENTER SERVER VERSION IF YOU HAVE A SERVER INSTALLED IN THE ABOVE PATH.
 # Type "version" into the console to see, then enter the 4 digit version.
@@ -30,7 +41,7 @@ $initialVersion = 1
 # Delete Exclusion Filter
 # Add folders or files to exclude from deletion. Wildcards accepted.
 
-$filter = @("*.cfg","*.cmd","*.bat","resources","cache")
+$filter = @("*.cfg","*.cmd","*.bat","*.zip","*.crt", "*.key", "resources","cache")
 
 
 ### DO NOT EDIT ANYTHING PAST THIS LINE ###
@@ -96,11 +107,6 @@ If ($doDownload -eq 1){
             Write-Error -Message "Unable to create directory '$artifactFolder'. Error was: $_" -ErrorAction Stop
         }
     }
-	else {
-        echo "Removing old files"
-        cd $artifactFolder
-        Get-ChildItem -Exclude $filter -Force | Remove-Item -Force -Recurse
-    }
 
 	echo "Downloading artifact $latestArtifact located at $latestUrl"
 	$dest = "$artifactFolder\$latestArtifact.zip"
@@ -111,12 +117,18 @@ If ($doDownload -eq 1){
         Write-Error "Unable to download latest artifact. It may not be available yet or was revoked. Error was: $_" -ErrorAction Stop
     }
 
+    echo "Removing old files"
+    cd $artifactFolder
+    Get-ChildItem -Exclude $filter -Force | Remove-Item -Force -Recurse
+
 	$d = "$artifactFolder"
 	
 	Expand-Archive $dest -DestinationPath $d -Force
 	$latest = "$latestArtifact"
 	echo $latest | Out-File -FilePath $artifactFolder/current-version
-	del $dest
+    if ($KeepDownload -eq $false) {
+        del $dest
+    }
 
     echo "Update completed."
 }
