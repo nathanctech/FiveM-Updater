@@ -47,6 +47,7 @@ $filter = @("*.cfg","*.cmd","*.bat","*.zip","*.crt", "*.key", "resources","cache
 ### DO NOT EDIT ANYTHING PAST THIS LINE ###
 
 function Get-Latest-Release {
+	[Net.ServicePointManager]::SecurityProtocol = "tls12, tls11, tls"
     $obj = Invoke-WebRequest "https://api.github.com/repos/citizenfx/fivem/git/refs/tags" -Headers @{"accept"="application/vnd.github.v3+json"} -UseBasicParsing | ConvertFrom-Json
     $path = ($obj | Select-Object -Last 1).object.url
     $tag = (Invoke-WebRequest $path -Headers @{"accept"="application/vnd.github.v3+json"} -UseBasicParsing) | ConvertFrom-Json 
