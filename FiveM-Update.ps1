@@ -1,8 +1,8 @@
-﻿##################################################
+##################################################
 ### FiveM Automatic Updater
 ###
 ###
-### V: 1.1
+### V: 1.2
 ###
 ### Updates/Support: https://github.com/nathanctech/FiveM-Updater
 ###
@@ -13,6 +13,8 @@
 ###
 ### Changelog
 ###
+### V1.2
+### - Change URL used due to API changes
 ###
 ### V1.1
 ### - Ensure new artifact can be downloaded before removing old files
@@ -31,7 +33,7 @@ param (
 
 # ABSOLUTE path to where FXServer.exe is located (or you want it to be created)
 
-$artifactFolder = "C:\MyCoolServer"
+$artifactFolder = "C:\FiveM\development\binaries"
 
 # FIRST TIME USE ONLY - ENTER SERVER VERSION IF YOU HAVE A SERVER INSTALLED IN THE ABOVE PATH.
 # Type "version" into the console to see, then enter the 4 digit version.
@@ -49,9 +51,9 @@ $filter = @("*.cfg","*.cmd","*.bat","*.zip","*.crt", "*.key", "resources","cache
 function Get-Latest-Release {
 	[Net.ServicePointManager]::SecurityProtocol = "tls12, tls11, tls"
     $obj = Invoke-WebRequest "https://api.github.com/repos/citizenfx/fivem/git/refs/tags" -Headers @{"accept"="application/vnd.github.v3+json"} -UseBasicParsing | ConvertFrom-Json
-    $path = ($obj | Select-Object -Last 1).object.url
-    $tag = (Invoke-WebRequest $path -Headers @{"accept"="application/vnd.github.v3+json"} -UseBasicParsing) | ConvertFrom-Json 
-    $hash = $tag.object.url -replace "https://api.github.com/repos/citizenfx/fivem/git/commits/"
+    $last = ($obj | ? {$_.ref -like "refs/tags/v1.0.0.*"} | Select-Object -Last 1)
+    $tag = Invoke-WebRequest $last.object.url -Headers @{"accept"="application/vnd.github.v3+json"} -UseBasicParsing | ConvertFrom-Json
+    $hash = $tag.object.sha
     $version = $tag.tag -replace "v1.0.0."
     $fullUrl = "https://runtime.fivem.net/artifacts/fivem/build_server_windows/master/" + $version + "-" + $hash + "/server.zip"
     $releaseObj = New-Object -TypeName psobject
@@ -133,4 +135,3 @@ If ($doDownload -eq 1){
 
     echo "Update completed."
 }
-
